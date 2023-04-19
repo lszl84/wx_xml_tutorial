@@ -49,12 +49,12 @@ void DrawingCanvas::DrawOnContext(wxGraphicsContext *gc)
     }
 }
 
-void DrawingCanvas::ShowSaveDialog()
+void DrawingCanvas::ShowExportDialog()
 {
-    wxFileDialog saveFileDialog(this, _("Save drawing"), "", "",
-                                "PNG files (*.png)|*.png", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    wxFileDialog exportFileDialog(this, _("Export drawing"), "", "",
+                                  "PNG files (*.png)|*.png", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
-    if (saveFileDialog.ShowModal() == wxID_CANCEL)
+    if (exportFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
     wxBitmap bitmap(this->GetSize() * this->GetContentScaleFactor());
@@ -75,7 +75,7 @@ void DrawingCanvas::ShowSaveDialog()
         delete gc;
     }
 
-    bitmap.SaveFile(saveFileDialog.GetPath(), wxBITMAP_TYPE_PNG);
+    bitmap.SaveFile(exportFileDialog.GetPath(), wxBITMAP_TYPE_PNG);
 }
 
 void DrawingCanvas::OnMouseDown(wxMouseEvent &)
@@ -109,7 +109,7 @@ void DrawingCanvas::OnMouseLeave(wxMouseEvent &)
 void DrawingCanvas::BuildContextMenu()
 {
     auto clear = contextMenu.Append(wxID_ANY, "&Clear");
-    auto save = contextMenu.Append(wxID_ANY, "Save &As...");
+    auto exp = contextMenu.Append(wxID_ANY, "Export &As...");
 
     this->Bind(
         wxEVT_MENU,
@@ -124,9 +124,9 @@ void DrawingCanvas::BuildContextMenu()
         wxEVT_MENU,
         [this](wxCommandEvent &)
         {
-            this->ShowSaveDialog();
+            this->ShowExportDialog();
         },
-        save->GetId());
+        exp->GetId());
 }
 
 void DrawingCanvas::OnContextMenuEvent(wxContextMenuEvent &e)

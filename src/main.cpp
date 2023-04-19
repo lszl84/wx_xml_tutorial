@@ -110,16 +110,16 @@ wxPanel *MyFrame::BuildControlsPanel(wxWindow *parent)
     SetupPenPanes(controlsPanel, penPaneSizer);
     mainSizer->Add(penPaneSizer, 0, wxALL, FromDIP(5));
 
-    auto button = new wxButton(controlsPanel, wxID_ANY, "Save As...");
+    auto exportButton = new wxButton(controlsPanel, wxID_ANY, "Export...");
 
     mainSizer->AddStretchSpacer();
-    mainSizer->Add(button, 0, wxALL, FromDIP(5));
+    mainSizer->Add(exportButton, 0, wxALL, FromDIP(5));
     mainSizer->AddSpacer(FromDIP(5));
 
     controlsPanel->SetSizer(mainSizer);
 
-    button->Bind(wxEVT_BUTTON, [this](wxCommandEvent &event)
-                 { canvas->ShowSaveDialog(); });
+    exportButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent &event)
+                       { canvas->ShowExportDialog(); });
 
     return controlsPanel;
 }

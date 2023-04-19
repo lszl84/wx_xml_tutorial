@@ -11,7 +11,7 @@ public:
     DrawingCanvas(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size);
     virtual ~DrawingCanvas() noexcept {}
 
-    void ShowSaveDialog();
+    void ShowExportDialog();
 
     int currentWidth{1};
     wxColour currentColor{*wxBLACK};
