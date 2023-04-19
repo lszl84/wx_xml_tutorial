@@ -1,11 +1,21 @@
 #pragma once
 
 #include <wx/xml/xml.h>
+#include <wx/fs_zip.h>
+#include <wx/zipstrm.h>
+#include <wx/wfstream.h>
+
+#include <memory>
 
 #include "path.h"
 
 struct XmlSerializer
 {
+    XmlSerializer()
+    {
+        wxFileSystem::AddHandler(new wxZipFSHandler);
+    }
+
     wxXmlDocument SerializePaths(const std::vector<Path> &paths)
     {
         wxXmlDocument doc;
@@ -67,5 +77,39 @@ struct XmlSerializer
         }
 
         return squiggles;
+    }
+
+    void CompressXml(const wxXmlDocument &doc, const wxString &zipFile)
+    {
+        auto outStream = wxFileOutputStream(zipFile);
+        wxZipOutputStream zip(outStream);
+
+        zip.PutNextEntry("paintdocument.xml");
+        doc.Save(zip);
+
+        zip.CloseEntry();
+
+        zip.Close();
+        outStream.Close();
+    }
+
+    wxXmlDocument DecompressXml(const wxString &in)
+    {
+        wxFileSystem fs;
+        std::unique_ptr<wxFSFile> zip(fs.OpenFile(in + "#zip:paintdocument.xml"));
+
+        wxXmlDocument doc;
+
+        if (zip)
+        {
+            wxInputStream *in = zip->GetStream();
+
+            if (in)
+            {
+                doc.Load(*in);
+            }
+        }
+
+        return doc;
     }
 };

@@ -185,25 +185,26 @@ void MyFrame::SelectPenPane(PenSizePane *pane)
 
 void MyFrame::SaveToXml()
 {
-    auto dialog = wxFileDialog(this, "Save as...", "", "", "PX files (*.px)|*.px", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    auto dialog = wxFileDialog(this, "Save as...", "", "", "PXZ files (*.pxz)|*.pxz", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (dialog.ShowModal() == wxID_CANCEL)
         return;
 
     auto doc = serializer.SerializePaths(canvas->GetSquiggles());
-    doc.Save(dialog.GetPath());
+
+    serializer.CompressXml(doc, dialog.GetPath());
 }
 
 void MyFrame::LoadFromXml()
 {
-    auto dialog = wxFileDialog(this, "Load...", "", "", "PX files (*.px)|*.px", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    auto dialog = wxFileDialog(this, "Load...", "", "", "PXZ files (*.pxz)|*.pxz", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (dialog.ShowModal() == wxID_CANCEL)
         return;
 
-    wxXmlDocument doc;
+    wxXmlDocument doc = serializer.DecompressXml(dialog.GetPath());
 
-    if (!doc.Load(dialog.GetPath()))
+    if (!doc.IsOk())
     {
         wxMessageBox("Failed to load file");
         return;
