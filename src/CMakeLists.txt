@@ -12,7 +12,7 @@ endif()
 
 set(wxWidgets_USE_STATIC 1)
 
-find_package(wxWidgets REQUIRED)
+find_package(wxWidgets REQUIRED core base xml)
 
 set(SRCS main.cpp drawingcanvas.cpp)
 

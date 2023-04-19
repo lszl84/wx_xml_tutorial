@@ -10,6 +10,8 @@
 
 #include "drawingcanvas.h"
 
+#include "xmlserializer.h"
+
 class MyApp : public wxApp
 {
 public:
@@ -34,6 +36,11 @@ private:
 
     std::vector<ColorPane *> colorPanes{};
     std::vector<PenSizePane *> penPanes{};
+
+    void LoadFromXml();
+    void SaveToXml();
+
+    XmlSerializer serializer{};
 
     DrawingCanvas *canvas;
 
@@ -111,15 +118,25 @@ wxPanel *MyFrame::BuildControlsPanel(wxWindow *parent)
     mainSizer->Add(penPaneSizer, 0, wxALL, FromDIP(5));
 
     auto exportButton = new wxButton(controlsPanel, wxID_ANY, "Export...");
+    auto saveButton = new wxButton(controlsPanel, wxID_ANY, "Save As...");
+    auto LoadButton = new wxButton(controlsPanel, wxID_ANY, "Load...");
 
     mainSizer->AddStretchSpacer();
     mainSizer->Add(exportButton, 0, wxALL, FromDIP(5));
+    mainSizer->Add(saveButton, 0, wxALL, FromDIP(5));
+    mainSizer->Add(LoadButton, 0, wxALL, FromDIP(5));
     mainSizer->AddSpacer(FromDIP(5));
 
     controlsPanel->SetSizer(mainSizer);
 
     exportButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent &event)
                        { canvas->ShowExportDialog(); });
+
+    saveButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent &event)
+                     { SaveToXml(); });
+
+    LoadButton->Bind(wxEVT_BUTTON, [this](wxCommandEvent &event)
+                     { LoadFromXml(); });
 
     return controlsPanel;
 }
@@ -164,4 +181,33 @@ void MyFrame::SelectPenPane(PenSizePane *pane)
     }
 
     canvas->currentWidth = pane->penWidth;
+}
+
+void MyFrame::SaveToXml()
+{
+    auto dialog = wxFileDialog(this, "Save as...", "", "", "PX files (*.px)|*.px", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    if (dialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    auto doc = serializer.SerializePaths(canvas->GetSquiggles());
+    doc.Save(dialog.GetPath());
+}
+
+void MyFrame::LoadFromXml()
+{
+    auto dialog = wxFileDialog(this, "Load...", "", "", "PX files (*.px)|*.px", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (dialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxXmlDocument doc;
+
+    if (!doc.Load(dialog.GetPath()))
+    {
+        wxMessageBox("Failed to load file");
+        return;
+    }
+
+    canvas->SetSquiggles(serializer.DeserializePaths(doc));
 }

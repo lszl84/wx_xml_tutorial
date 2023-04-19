@@ -16,6 +16,14 @@ public:
     int currentWidth{1};
     wxColour currentColor{*wxBLACK};
 
+    const std::vector<Path> &GetSquiggles() const { return squiggles; }
+
+    void SetSquiggles(const std::vector<Path> &&squiggles)
+    {
+        this->squiggles = std::move(squiggles);
+        Refresh();
+    }
+
 private:
     void OnPaint(wxPaintEvent &);
     void DrawOnContext(wxGraphicsContext *gc);
